@@ -61,14 +61,14 @@ jobs:
             target='["'${platforms}'/'${achitectures}'"]'
           fi
           list=$(echo ${target} | jq -c)
-          echo "::set-output name=target::${list}"
+          echo "target=${list}" >> $GITHUB_OUTPUT
           if ${{ github.event.inputs.branch == ''}}; then
             branch='["dev"]'
           else
             branch='["${{ github.event.inputs.branch }}"]'
           fi
           b=$(echo ${branch} | jq -c)
-          echo "::set-output name=branch::${b}"
+          echo "branch=${b}" >> $GITHUB_OUTPUT
   build:
     if: contains('["libsgh"]', github.actor)
     needs: setup
@@ -76,7 +76,7 @@ jobs:
       matrix:
         target: ${{ fromJson(needs.setup.outputs.target) }}
         branch: ${{ fromJson(needs.setup.outputs.branch) }}
-        go-version: [1.18]
+        go-version: [1.19]
     name: build
     runs-on: ubuntu-latest
     outputs:
@@ -87,9 +87,9 @@ jobs:
         run: |
           tar=${{ matrix.target }}
           a=${tar//'/'/'-'}
-          echo "::set-output name=name::${a}"
+          echo "name=${a}" >> $GITHUB_OUTPUT
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
       - name: Checkout
